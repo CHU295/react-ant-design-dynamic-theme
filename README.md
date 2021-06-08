@@ -1,70 +1,57 @@
-# Getting Started with Create React App
+# 1.所需依赖
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+项目只需要安装一个依赖即可 antd-theme-generator
 
-## Available Scripts
+# 2.配置文件
 
-In the project directory, you can run:
 
-### `yarn start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```
+<link rel="stylesheet/less" type="text/css" href="/color.less" />
+<script>
+  window.less = {
+    async: true,
+    env: 'production'
+  };
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.7.2/less.min.js"></script>
+```
+在主html文件中插入如下代码
+代码讲解，第一行就是引用样式文件，这个color.less就是我们动态修改实时生成的antd样式文件
 
-### `yarn test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+const { generateTheme } = require('antd-theme-generator');
 
-### `yarn build`
+const options = {
+  antDir: path.join(__dirname, './node_modules/antd'),
+  stylesDir: path.join(__dirname, './src'), // all files with .less extension will be processed
+  varFile: path.join(__dirname, './src/styles/variables.less'), // default path is Ant Design default.less file
+  themeVariables: ['@primary-color'],
+  outputFilePath: path.join(__dirname, './public/color.less') // if provided, file will be created with generated less/styles
+  customColorRegexArray: [/^fade\(.*\)$/], // An array of regex codes to match your custom color variable values so that code can identify that it's a valid color. Make sure your regex does not adds false positives.
+}
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+generateTheme(options).then(less => {
+  console.log('Theme generated successfully');
+})
+.catch(error => {
+  console.log('Error', error);
+})
+```
+在项目根目录创建color.js，然后修改package.json启动命令
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+具体api查官方文档即可
+`"start": "node color.js && craco  start",`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+window.less.modifyVars({
+  '@primary-color': '#0035ff'
+})
+```
+在需要的地方调用上述方法即可实现动态切换主题
+# 雷点
+不要在项目里面再次引用antd主题样式，如果需要用到主题色什么的。直接从variables.less里面引用
 
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+项目地址：https://github.com/CHU295/react-ant-design-dynamic-theme
